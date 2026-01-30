@@ -1,0 +1,11 @@
+nohup: ignoring input
+INFO:     Started server process [19140]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+INFO:     127.0.0.1:57602 - "GET /api/crystal-sync HTTP/1.1" 200 OK
+nohup: ignoring input
+INFO:     Started server process [1568]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)

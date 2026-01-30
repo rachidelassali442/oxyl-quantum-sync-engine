@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OXYL OS | Quantum Control Center</title>
+    <style>
+        :root {
+            --neon-green: #00ff41;
+            --dark-green: #00cc34;
+            --matrix-green: #00ff88;
+            --cyber-blue: #00f2ff;
+            --deep-black: #0a0a0a;
+            --dark-gray: #121212;
+            --medium-gray: #1a1a1a;
+            --light-gray: #333333;
+            --warning-red: #ff0040;
+            --alert-yellow: #ffff55;
+            --success-green: #00ff88;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', 'Monaco', monospace;
+        }
+
+        body {
+            background-color: var(--deep-black);
+            color: var(--neon-green);
+            overflow-x: hidden;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Atomic Pulse Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(0, 255, 65, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0, 242, 255, 0.02) 0%, transparent 40%),
+                radial-gradient(circle at 40% 80%, rgba(0, 255, 136, 0.02) 0%, transparent 40%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Atomic Pulse Animation */
+        @keyframes atomicPulse {
+            0%, 100% { 
+                opacity: 0.5; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.1);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Main Container */
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto auto auto;
+            gap: 20px;
+            padding: 20px;
+            max-width: 1800px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 30px 20px;
+            border-bottom: 2px solid var(--neon-green);
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(0, 255, 65, 0.1),
+                transparent
+            );
+            animation: scanline 3s linear infinite;
+        }
+
+        @keyframes scanline {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            text-shadow: 
+                0 0 10px var(--neon-green),
+                0 0 20px var(--neon-green),
+                0 0 30px var(--neon-green);
+            margin-bottom: 10px;
+            animation: atomicPulse 2s ease-in-out infinite;
+        }
+
+        .header h2 {
+            font-size: 1.2rem;
+            color: var(--cyber-blue);
+            letter-spacing: 3px;
+            font-weight: normal;
+        }
+
+        /* Dashboard Cards */
+        .dashboard-card {
+            background: rgba(18, 18, 18, 0.85);
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--neon-green), var(--cyber-blue));
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--neon-green);
+            box-shadow: 
+                0 0 20px rgba(0, 255, 65, 0.2),
+                inset 0 0 20px rgba(0, 255, 65, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            color: var(--cyber-blue);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title i {
+            font-size: 1.6rem;
+        }
+
+        /* Status Dashboard */
+        #status-dashboard {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .status-item {
+            background: rgba(26, 26, 26, 0.7);
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 4px solid var(--neon-green);
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            color: var(--matrix-green);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .status-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        .status-good { color: var(--success-green); }
+        .status-warning { color: var(--alert-yellow); animation: pulse 1s infinite; }
+        .status-critical { color: var(--warning-red); animation: pulse 0.5s infinite; }
+
+        /* Live Log Stream */
+        #log-stream {
+            grid-column: 2;
+            grid-row: 2 / span 2;
+            min-height: 600px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .log-container {
+            flex: 1;
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            padding: 15px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-top: 10px;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            padding: 5px 10px;
+            border-left: 2px solid var(--neon-green);
+            background: rgba(0, 255, 65, 0.05);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .log-timestamp {
+            color: var(--cyber-blue);
+            margin-right: 10px;
+        }
+
+        .log-message {
+            color: var(--matrix-green);
+        }
+
+        /* Quantum Connectivity Visualizer */
+        #quantum-visualizer {
+            grid-column: 1;
+            grid-row: 3;
+            min-height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visualizer-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+        }
+
+        .atom-core {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, var(--neon-green), transparent);
+            border-radius: 50%;
+            animation: atomicPulse 2s ease-in-out infinite;
+            box-shadow: 
+                0 0 30px var(--neon-green),
+                0 0 60px rgba(0, 255, 65, 0.3);
+        }
+
+        .electron-orbit {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 1px solid rgba(0, 255, 65, 0.3);
+            border-radius: 50%;
+            animation: rotate 20s linear infinite;
+        }
+
+        .electron {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--cyber-blue);
+            border-radius: 50%;
+            top: -6px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 
+                0 0 10px var(--cyber-blue),
+                0 0 20px rgba(0, 242, 255, 0.5);
+        }
+
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .orbit-1 { width: 200px; height: 200px; animation-duration: 15s; }
+        .orbit-2 { width: 150px; height: 150px; animation-duration: 12s; animation-direction: reverse; }
+        .orbit-3 { width: 100px; height: 100px; animation-duration: 10s; }
+
+        .connectivity-stats {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 1.2rem;
+            color: var(--cyber-blue);
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        /* Infrastructure Map */
+        #infrastructure-map {
+            grid-column: 1;
+            grid-row: 4;
+        }
+
+        .infrastructure-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .infra-node {
+            background: rgba(26, 26, 26, 0.7);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid var(--light-gray);
+            transition: all 0.3s ease;
+        }
+
+        .infra-node:hover {
+            border-color: var(--cyber-blue);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.2);
+        }
+
+        .node-status {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            background: var(--success-green);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .node-status.offline { background: var(--warning-red); }
+        .node-status.degraded { background: var(--alert-yellow); }
+
+        /* Latency Monitor */
+        #latency-monitor {
+            grid-column: 2;
+            grid-row: 4;
+        }
+
+        .latency-chart {
+            height: 200px;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .latency-bar {
+            position: absolute;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to top, var(--neon-green), transparent);
+            transition: all 0.3s ease;
+        }
+
+        /* Data Packet Display */
+        #data-packet {
+            grid-column: 1 / -1;
+            grid-row: 5;
+            margin-top: 20px;
+        }
+
+        .packet-display {
+            background: rgba(10, 10, 10, 0.9);
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            margin-top: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .json-key { color: var(--cyber-blue); }
+        .json-string { color: var(--matrix-green); }
+        .json-number { color: var(--alert-yellow); }
+        .json-boolean { color: var(--warning-red); }
+
+        /* Footer */
+        .footer {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--light-gray);
+            margin-top: 20px;
+            color: var(--matrix-green);
+            font-size: 0.9rem;
+        }
+
+        .update-timer {
+            color: var(--cyber-blue);
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            #status-dashboard,
+            #log-stream,
+            #quantum-visualizer,
+            #infrastructure-map,
+            #latency-monitor,
+            #data-packet {
+                grid-column: 1;
+            }
+            
+            #log-stream { grid-row: 3; }
+            #quantum-visualizer { grid-row: 4; }
+            #infrastructure-map { grid-row: 5; }
+            #latency-monitor { grid-row: 6; }
+            #data-packet { grid-row: 7; }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .status-grid,
+            .infrastructure-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .visualizer-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .orbit-1 { width: 160px; height: 160px; }
+            .orbit-2 { width: 120px; height: 120px; }
+            .orbit-3 { width: 80px; height: 80px; }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .dashboard-card {
+                padding: 15px;
+            }
+            
+            .status-grid,
+            .infrastructure-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 255, 65, 0.3);
+            border-top-color: var(--neon-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Connection Status */
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(18, 18, 18, 0.9);
+            border: 1px solid var(--neon-green);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--success-green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Connection Status Indicator -->
+    <div class="connection-status">
+        <div class="status-dot"></div>
+        <span>Quantum Link: <span id="connection-status">ESTABLISHED</span></span>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1><i class="fas fa-atom"></i> OXYL OS QUANTUM CONTROL CENTER</h1>
+            <h2>REAL-TIME SPACETIME TELEMETRY & QUANTUM SYNCHRONIZATION</h2>
+        </div>
+
+        <!-- Status Dashboard -->
+        <div class="dashboard-card" id="status-dashboard">
+            <div class="card-title">
+                <i class="fas fa-heartbeat"></i>
+                SYSTEM VITAL SIGNS
+            </div>
+            <div class="status-grid" id="status-grid">
+                <!-- Dynamic status items will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Live Log Stream -->
+        <div class="dashboard-card" id="log-stream">
+            <div class="card-title">
+                <i class="fas fa-terminal"></i>
+                LIVE QUANTUM LOG STREAM
+            </div>
+            <div class="log-container" id="log-container">
+                <!-- Log entries will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Quantum Connectivity Visualizer -->
+        <div class="dashboard-card" id="quantum-visualizer">
+            <div class="card-title">
+                <i class="fas fa-satellite-dish"></i>
+                QUANTUM CONNECTIVITY MATRIX
+            </div>
+            <div class="visualizer-container">
+                <div class="atom-core"></div>
+                <div class="electron-orbit orbit-1">
+                    <div class="electron"></div>
+                </div>
+                <div class="electron-orbit orbit-2">
+                    <div class="electron"></div>
+                </div>
+                <div class="electron-orbit orbit-3">
+                    <div class="electron"></div>
+                </div>
+                <div class="connectivity-stats">
+                    <div>ENTANGLEMENT RATE: <span id="entanglement-rate">94.7%</span></div>
+                    <div>COHERENCE TIME: <span id="coherence-time">156ms</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Infrastructure Map -->
+        <div class="dashboard-card" id="infrastructure-map">
+            <div class="card-title">
+                <i class="fas fa-network-wired"></i>
+                QUANTUM INFRASTRUCTURE GRID
+            </div>
+            <div class="infrastructure-grid" id="infrastructure-grid">
+                <!-- Infrastructure nodes will be inserted here -->
+            </div>
+        </div>
+
+        <!-- Latency Monitor -->
+        <div class="dashboard-card" id="latency-monitor">
+            <div class="card-title">
+                <i class="fas fa-tachometer-alt"></i>
+                SPACETIME LATENCY MONITOR
+            </div>
+            <div class="latency-chart" id="latency-chart">
+                <!-- Latency bars will be inserted here -->
+            </div>
+            <div style="text-align: center; margin-top: 10px;">
+                CURRENT LATENCY: <span id="current-latency">--</span> ms
+            </div>
+        </div>
+
+        <!-- Data Packet Display -->
+        <div class="dashboard-card" id="data-packet">
+            <div class="card-title">
+                <i class="fas fa-code"></i>
+                RAW QUANTUM DATA PACKET
+            </div>
+            <div class="packet-display" id="packet-display">
+                {/* Waiting for quantum data stream... */}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <div>OXYL OS QUANTUM CONTROL CENTER v3.7.0</div>
+            <div class="update-timer">
+                NEXT QUANTUM UPDATE: <span id="update-timer">2</span>s
+            </div>
+            <div style="margin-top: 10px; font-size: 0.8rem; color: var(--light-gray);">
+                © 2024 OXYL ADVANCED CODE FACTORY | PROPRIETARY QUANTUM SYSTEMS
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const statusGrid = document.getElementById('status-grid');
+        const logContainer = document.getElementById('log-container');
+        const infrastructureGrid = document.getElementById('infrastructure-grid');
+        const latencyChart = document.getElementById('latency-chart');
+        const packetDisplay = document.getElementById('packet-display');
+        const currentLatency = document.getElementById('current-latency');
+        const updateTimer = document.getElementById('update-timer');
+        const connectionStatus = document.getElementById('connection-status');
+        const entanglementRate = document.getElementById('entanglement-rate');
+        const coherenceTime = document.getElementById('coherence-time');
+
+        // Configuration
+        const API_ENDPOINT = '/api'; // Updated to match your Flask route
+        const UPDATE_INTERVAL = 2000; // 2 seconds
+        let latencyHistory = [];
+        let logHistory = [];
+        let updateCount = 0;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeDashboard();
+            fetchQuantumData();
+            setInterval(fetchQuantumData, UPDATE_INTERVAL);
+            startUpdateTimer();
+        });
+
+        // Initialize Dashboard with Default Values
+        function initializeDashboard() {
+            // Initialize status grid
+            const defaultStatus = [
+                { label: 'QUANTUM STATE', value: 'COHERENT', status: 'good' },
+                { label: 'ENTANGLEMENT', value: '94.7%', status: 'good' },
+                { label: 'WARP STABILITY', value: '99.2%', status: 'good' },
+                { label: 'ENERGY FLUX', value: '2.4 TWh', status: 'warning' },
+                { label: 'TEMPORAL DRIFT', value: '±3.2ps', status: 'good' },
+                { label: 'GRAVITATIONAL LENSING', value: '0.4μrad', status: 'good' }
+            ];
+
+            defaultStatus.forEach(status => {
+                const statusItem = document.createElement('div');
+                statusItem.className = 'status-item';
+                statusItem.innerHTML = `
+                    <div class="status-label">${status.label}</div>
+                    <div class="status-value status-${status.status}">${status.value}</div>
+                `;
+                statusGrid.appendChild(statusItem);
+            });
+
+            // Initialize infrastructure grid
+            const defaultNodes = [
+                { name: 'Q-CORE-01', status: 'online' },
+                { name: 'Q-CORE-02', status: 'online' },
+                { name: 'WARP-GATE-01', status: 'online' },
+                { name: 'TELEMETRY-ARRAY', status: 'degraded' },
+                { name: 'CRYPTO-MESH', status: 'online' },
+                { name: 'NEURAL-SYNC', status: 'online' }
+            ];
+
+            defaultNodes.forEach(node => {
+                const nodeElement = document.createElement('div');
+                nodeElement.className = 'infra-node';
+                nodeElement.innerHTML = `
+                    <div class="node-status ${node.status}"></div>
+                    <div>${node.name}</div>
+                `;
+                infrastructureGrid.appendChild(nodeElement);
+            });
+
+            // Initialize latency chart
+            for (let i = 0; i < 50; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'latency-bar';
+                bar.style.left = `${i * 6}px`;
+                bar.style.height = '0px';
+                latencyChart.appendChild(bar);
+            }
+
+            // Add initial log entry
+            addLogEntry('Quantum Control Center initialized. Establishing spacetime link...');
+        }
+
+        // Fetch Quantum Data from API
+        async function fetchQuantumData() {
+            try {
+                const response = await fetch(API_ENDPOINT);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                updateDashboard(data);
+                updateConnectionStatus('ESTABLISHED');
+                
+                // Add successful fetch to log
+                addLogEntry(`Quantum data packet received. Entanglement: ${data.status || 'ACTIVE'}`);
+                
+            } catch (error) {
+                console.error('Failed to fetch quantum data:', error);
+                updateConnectionStatus('DEGRADED');
+                addLogEntry(`Quantum link disruption: ${error.message}`);
+                
+                // Update with fallback data
+                updateDashboard(getFallbackData());
+            }
+        }
+
+        // Update Dashboard with Live Data
+        function updateDashboard(data) {
+            updateCount++;
+            
+            // Update status values
+            if (data.status) {
+                updateStatusValue('QUANTUM STATE', data.status);
+            }
+            if (data.infrastructure) {
+                updateInfrastructure(data.infrastructure);
+            }
+            if (data.latency !== undefined) {
+                updateLatency(data.latency);
+                currentLatency.textContent = data.latency;
+            }
+            
+            // Update quantum metrics
+            if (updateCount % 5 === 0) {
+                entanglementRate.textContent = `${(Math.random() * 5 + 94).toFixed(1)}%`;
+                coherenceTime.textContent = `${Math.floor(Math.random() * 50 + 150)}ms`;
+            }
+            
+            // Update packet display with syntax highlighting
+            packetDisplay.innerHTML = syntaxHighlight(JSON.stringify(data, null, 2));
+            
+            // Add timestamp to log
+            if (data.timestamp) {
+                addLogEntry(`Quantum coherence maintained. Temporal sync: ${new Date(data.timestamp).toLocaleTimeString()}`);
+            }
+        }
+
+        // Update Status Value
+        function updateStatusValue(label, value) {
+            const statusItems = document.querySelectorAll('.status-item');
+            statusItems.forEach(item => {
+                if (item.querySelector('.status-label').textContent === label) {
+                    const valueElement = item.querySelector('.status-value');
+                    valueElement.textContent = value;
+                    
+                    // Update status color based on value
+                    if (typeof value === 'string') {
+                        if (value.includes('COHERENT') || value.includes('STABLE')) {
+                            valueElement.className = 'status-value status-good';
+                        } else if (value.includes('DEGRADED') || value.includes('WARNING')) {
+                            valueElement.className = 'status-value status-warning';
+                        } else {
+                            valueElement.className = 'status-value status-critical';
+                        }
+                    }
+                }
+            });
+        }
+
+        // Update Infrastructure
+        function updateInfrastructure(infraData) {
+            const nodes = document.querySelectorAll('.infra-node .node-status');
+            nodes.forEach((node, index) => {
+                if (infraData[index]) {
+                    node.className = `node-status ${infraData[index].status}`;
+                }
+            });
+        }
+
+        // Update Latency Chart
+        function updateLatency(latency) {
+            latencyHistory.push(latency);
+            if (latencyHistory.length > 50) {
+                latencyHistory.shift();
+            }
+            
+            const maxLatency = Math.max(...latencyHistory, 100);
+            const bars = document.querySelectorAll('.latency-bar');
+            
+            latencyHistory.forEach((lat, index) => {
+                if (bars[index]) {
+                    const height = (lat / maxLatency) * 180;
+                    bars[index].style.height = `${height}px`;
+                    
+                    // Color based on latency
+                    if (lat < 30) {
+                        bars[index].style.background = 'linear-gradient(to top, var(--success-green), transparent)';
+                    } else if (lat < 70) {
+                        bars[index].style.background = 'linear-gradient(to top, var(--alert-yellow), transparent)';
+                    } else {
+                        bars[index].style.background = 'linear-gradient(to top, var(--warning-red), transparent)';
+                    }
+                }
+            });
+        }
+
+        // Add Log Entry
+        function addLogEntry(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.innerHTML = `
+                <span class="log-timestamp">[${timestamp}]</span>
+                <span class="log-message">${message}</span>
+            `;
+            
+            logContainer.appendChild(logEntry);
+            logHistory.push({ timestamp, message });
+            
+            // Keep only last 50 entries
+            if (logHistory.length > 50) {
+                logHistory.shift();
+                if (logContainer.firstChild) {
+                    logContainer.removeChild(logContainer.firstChild);
+                }
+            }
+            
+            // Auto-scroll to bottom
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Update Connection Status
+        function updateConnectionStatus(status) {
+            connectionStatus.textContent = status;
+            const statusDot = document.querySelector('.status-dot');
+            
+            switch(status) {
+                case 'ESTABLISHED':
+                    statusDot.style.background = 'var(--success-green)';
+                    statusDot.style.animation = 'pulse 2s ease-in-out infinite';
+                    break;
+                case 'DEGRADED':
+                    statusDot.style.background = 'var(--alert-yellow)';
+                    statusDot.style.animation = 'pulse 1s ease-in-out infinite';
+                    break;
+                case 'LOST':
+                    statusDot.style.background = 'var(--warning-red)';
+                    statusDot.style.animation = 'pulse 0.5s ease-in-out infinite';
+                    break;
+            }
+        }
+
+        // Start Update Timer
+        function startUpdateTimer() {
+            let seconds = UPDATE_INTERVAL / 1000;
+            setInterval(() => {
+                seconds--;
+                if (seconds < 0) seconds = UPDATE_INTERVAL / 1000;
+                updateTimer.textContent = seconds;
+            }, 1000);
+        }
+
+        // JSON Syntax Highlighting
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, 
+                function(match) {
+                    let cls = 'json-number';
+                    if (/^"/.test(match)) {
+                        if (/:$/.test(match)) {
+                            cls = 'json-key';
+                        } else {
+                            cls = 'json-string';
+                        }
+                    } else if (/true|false/.test(match)) {
+                        cls = 'json-boolean';
+                    } else if (/null/.test(match)) {
+                        cls = 'json-null';
+                    }
+                    return '<span class="' + cls + '">' + match + '</span>';
+                }
+            );
+        }
+
+        // Fallback Data for Offline Mode
+        function getFallbackData() {
+            return {
+                status: 'DEGRADED',
+                infrastructure: [
+                    { name: 'Q-CORE-01', status: 'online' },
+                    { name: 'Q-CORE-02', status: 'offline' },
+                    { name: 'WARP-GATE-01', status: 'online' },
+                    { name: 'TELEMETRY-ARRAY', status: 'degraded' },
+                    { name: 'CRYPTO-MESH', status: 'online' },
+                    { name: 'NEURAL-SYNC', status: 'degraded' }
+                ],
+                latency: Math.floor(Math.random() * 100) + 50,
+                timestamp: new Date().toISOString(),
+                message: 'FALLBACK MODE: Quantum link temporarily degraded'
+            };
+        }
+
+        // Quantum Animation Enhancement
+        function enhanceQuantumAnimation() {
+            const electrons = document.querySelectorAll('.electron');
+            electrons.forEach((electron, index) => {
+                setTimeout(() => {
+                    electron.style.animation = `pulse ${1 + Math.random()}s ease-in-out infinite`;
+                }, index * 300);
+            });
+        }
+
+        // Initialize quantum animation
+        enhanceQuantumAnimation();
+    </script>
+</body>
+</html>
